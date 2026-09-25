@@ -36,7 +36,7 @@ export class LoginUseCase {
       user.status,
     );
 
-    const refreshToken = await this.generateAccessToken(
+    const refreshToken = await this.generateRefreshToken(
       user.id,
       user.email,
       user.status,
@@ -107,7 +107,6 @@ export class LoginUseCase {
     });
     return jwtString;
   }
-
   async generateRefreshToken(
     userId: string,
     email: string,
