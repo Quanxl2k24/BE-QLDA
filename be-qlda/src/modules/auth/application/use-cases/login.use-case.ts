@@ -48,7 +48,7 @@ export class LoginUseCase {
 
     const userAgent = req.headers['user-agent'] || null;
 
-    let ipAddress = req.headers['x-forwarded-for']
+    const ipAddress = req.headers['x-forwarded-for']
       ? (req.headers['x-forwarded-for'] as string).split(',')[0]
       : req.ip || null;
 

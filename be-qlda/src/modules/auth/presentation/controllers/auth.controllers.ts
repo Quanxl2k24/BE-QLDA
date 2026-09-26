@@ -1,14 +1,21 @@
 import {
   Body,
   Controller,
-  Get,
+  Param,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { LoginUseCase } from '../../application/use-cases/login.use-case';
-import { AuthLoginDTO } from '../dto/auth-login.dto';
+import {
+  AuthForgotDTO,
+  AuthLoginDTO,
+  AuthOTPForgotDTO,
+  AuthRestPasswordDTO,
+  AuthResendOtpDTO,
+} from '../dto/auth-login.dto';
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { RefreshTokenUseCase } from '../../application/use-cases/refresh.use-case';
@@ -17,6 +24,10 @@ import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import type { PayloadToken } from '@/common/types/types';
 import { AccessTokenGuard } from '../../infrastructure/guards/access-token.guard';
 import { LogoutUseCase } from '../../application/use-cases/logout.use-case';
+import { ForgotUseCase } from '../../application/use-cases/forgot.use-case';
+import { OTPUseCase } from '../../application/use-cases/otp.use-case';
+import { RestPasswordUseCase } from '../../application/use-cases/rest-pass.use-case';
+import { ResendOtpUseCase } from '../../application/use-cases/resend-otp.use-case';
 @Controller({
   path: 'auth',
   version: '1',
@@ -27,6 +38,10 @@ export class AuthController {
     private readonly configService: ConfigService,
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
     private readonly logoutUseCase: LogoutUseCase,
+    private readonly forgotUseCase: ForgotUseCase,
+    private readonly otpUseCase: OTPUseCase,
+    private readonly restPasswordUseCase: RestPasswordUseCase,
+    private readonly resendOtpUseCase: ResendOtpUseCase,
   ) {}
 
   @Post('/login')
@@ -98,5 +113,28 @@ export class AuthController {
     res.clearCookie('refreshToken');
     res.clearCookie('accessToken');
     return this.logoutUseCase.execute(req.cookies.refreshToken);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() body: AuthForgotDTO) {
+    return this.forgotUseCase.execute(body.email);
+  }
+
+  @Post('/otp-forgot')
+  async otpForgot(@Body() body: AuthOTPForgotDTO) {
+    return this.otpUseCase.execute(body.email, body.otp);
+  }
+
+  @Post('/rest-password')
+  async restPassword(
+    @Query('token') token: string,
+    @Body() body: AuthRestPasswordDTO,
+  ) {
+    return this.restPasswordUseCase.execute(token, body.password);
+  }
+
+  @Post('/resend-otp')
+  async resendOtp(@Body() body: AuthResendOtpDTO) {
+    return this.resendOtpUseCase.execute(body.email);
   }
 }

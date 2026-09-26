@@ -14,6 +14,7 @@ export class PrismaAuthRepository implements AuthRepository {
         email,
       },
     });
+    console.log('prisma', user, email);
     if (!user) {
       return null;
     }
@@ -126,5 +127,18 @@ export class PrismaAuthRepository implements AuthRepository {
       find.createdAt,
       find.updatedAt,
     );
+  }
+
+  async updatePassword(userId: string, passwordHash: string): Promise<void> {
+    await this.prismaService.$transaction([
+      this.prismaService.user.update({
+        where: { id: userId },
+        data: { passwordHash },
+      }),
+      this.prismaService.refreshToken.updateMany({
+        where: { userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      }),
+    ]);
   }
 }

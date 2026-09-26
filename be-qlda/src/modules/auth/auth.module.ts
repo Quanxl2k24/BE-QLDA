@@ -8,6 +8,10 @@ import { RefreshTokenUseCase } from './application/use-cases/refresh.use-case';
 import { RefreshTokenStrategy } from './infrastructure/strategies/refresh-token.strategy';
 import { AccessTokenStrategy } from './infrastructure/strategies/access-token.strategies';
 import { LogoutUseCase } from './application/use-cases/logout.use-case';
+import { ForgotUseCase } from './application/use-cases/forgot.use-case';
+import { OTPUseCase } from './application/use-cases/otp.use-case';
+import { RestPasswordUseCase } from './application/use-cases/rest-pass.use-case';
+import { ResendOtpUseCase } from './application/use-cases/resend-otp.use-case';
 
 @Module({
   imports: [JwtModule],
@@ -18,6 +22,10 @@ import { LogoutUseCase } from './application/use-cases/logout.use-case';
     RefreshTokenStrategy,
     AccessTokenStrategy,
     LogoutUseCase,
+    ForgotUseCase,
+    OTPUseCase,
+    RestPasswordUseCase,
+    ResendOtpUseCase,
     {
       provide: AuthRepository,
       useClass: PrismaAuthRepository,

@@ -30,4 +30,9 @@ export abstract class AuthRepository {
     ipAddress?: string | null;
     revokedAt?: Date | null;
   }): Promise<RefreshTokenEntity | null>;
+
+  abstract updatePassword(
+    userId: string,
+    passwordHash: string,
+  ): Promise<void>;
 }
