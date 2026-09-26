@@ -36,7 +36,7 @@ export class LoginUseCase {
       user.status,
     );
 
-    const refreshToken = await this.generateAccessToken(
+    const refreshToken = await this.generateRefreshToken(
       user.id,
       user.email,
       user.status,
@@ -48,7 +48,7 @@ export class LoginUseCase {
 
     const userAgent = req.headers['user-agent'] || null;
 
-    let ipAddress = req.headers['x-forwarded-for']
+    const ipAddress = req.headers['x-forwarded-for']
       ? (req.headers['x-forwarded-for'] as string).split(',')[0]
       : req.ip || null;
 
@@ -107,7 +107,6 @@ export class LoginUseCase {
     });
     return jwtString;
   }
-
   async generateRefreshToken(
     userId: string,
     email: string,

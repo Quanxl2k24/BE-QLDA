@@ -18,4 +18,16 @@ export const envValidationSchema = Joi.object({
   JWT_REFRESH_EXPIRES_IN: Joi.string().default('7d'),
 
   BCRYPT_SALT_ROUNDS: Joi.number().default(12),
+
+  REDIS_HOST: Joi.string().default('localhost'),
+  REDIS_PORT: Joi.number().default(6379),
+
+  MAIL_HOST: Joi.string().default('smtp.gmail.com'),
+  MAIL_PORT: Joi.number().default(587),
+  MAIL_USER: Joi.string().allow('', null).optional(),
+  MAIL_PASS: Joi.string().allow('', null).optional(),
+  MAIL_FROM: Joi.string().allow('', null).optional(),
+
+  // Thời gian sống OTP tính bằng giây (mặc định 300s = 5 phút)
+  OTP_TTL_SECONDS: Joi.number().integer().min(60).default(300),
 });
