@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Param,
   Post,
   Query,
   Req,
@@ -112,17 +111,17 @@ export class AuthController {
   async logout(@Res({ passthrough: true }) res: Response, @Req() req: Request) {
     res.clearCookie('refreshToken');
     res.clearCookie('accessToken');
-    return this.logoutUseCase.execute(req.cookies.refreshToken);
+    return await this.logoutUseCase.execute(req.cookies.refreshToken);
   }
 
   @Post('forgot-password')
   async forgotPassword(@Body() body: AuthForgotDTO) {
-    return this.forgotUseCase.execute(body.email);
+    return await this.forgotUseCase.execute(body.email);
   }
 
   @Post('/otp-forgot')
   async otpForgot(@Body() body: AuthOTPForgotDTO) {
-    return this.otpUseCase.execute(body.email, body.otp);
+    return await this.otpUseCase.execute(body.email, body.otp);
   }
 
   @Post('/rest-password')
@@ -130,11 +129,11 @@ export class AuthController {
     @Query('token') token: string,
     @Body() body: AuthRestPasswordDTO,
   ) {
-    return this.restPasswordUseCase.execute(token, body.password);
+    return await this.restPasswordUseCase.execute(token, body.password);
   }
 
   @Post('/resend-otp')
   async resendOtp(@Body() body: AuthResendOtpDTO) {
-    return this.resendOtpUseCase.execute(body.email);
+    return await this.resendOtpUseCase.execute(body.email);
   }
 }
