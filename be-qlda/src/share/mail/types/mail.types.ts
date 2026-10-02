@@ -1,9 +1,4 @@
-export enum MailType {
-  FORGOT_PASSWORD = 'FORGOT_PASSWORD',
-  REGISTER = 'REGISTER',
-  DEVICE_LIMIT_EXCEEDED = 'DEVICE_LIMIT_EXCEEDED',
-  CUSTOM = 'CUSTOM',
-}
+export { MailType } from '@/common/enums';
 
 export interface BaseMailContext {
   appName?: string;

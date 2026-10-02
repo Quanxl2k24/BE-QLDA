@@ -14,7 +14,6 @@ export class PrismaAuthRepository implements AuthRepository {
         email,
       },
     });
-    console.log('prisma', user, email);
     if (!user) {
       return null;
     }

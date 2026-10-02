@@ -1,50 +1,75 @@
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { hash } from 'argon2';
+import { PermissionEnum, RoleEnum } from '../src/common/enums/rbac.enum';
 
 const prisma = new PrismaClient();
 
 const PERMISSIONS = [
   // Product permissions
   {
-    name: 'PRODUCT:READ',
+    name: PermissionEnum.PRODUCT_READ,
     description: 'Xem danh sách và thông tin chi tiết sản phẩm',
   },
   {
-    name: 'PRODUCT:CREATE',
+    name: PermissionEnum.PRODUCT_CREATE,
     description: 'Tạo sản phẩm mới',
   },
   {
-    name: 'PRODUCT:UPDATE',
+    name: PermissionEnum.PRODUCT_UPDATE,
     description: 'Chỉnh sửa thông tin sản phẩm',
   },
   {
-    name: 'PRODUCT:DELETE',
+    name: PermissionEnum.PRODUCT_DELETE,
     description: 'Xóa sản phẩm',
   },
 
   // Order permissions
   {
-    name: 'ORDER:READ',
+    name: PermissionEnum.ORDER_READ,
     description: 'Xem danh sách và chi tiết đơn hàng',
   },
   {
-    name: 'ORDER:UPDATE',
+    name: PermissionEnum.ORDER_UPDATE,
     description: 'Cập nhật trạng thái và thông tin đơn hàng',
   },
   {
-    name: 'ORDER:CANCEL',
+    name: PermissionEnum.ORDER_CANCEL,
     description: 'Hủy đơn hàng',
   },
 
   // User permissions
   {
-    name: 'USER:READ',
+    name: PermissionEnum.USER_READ,
     description: 'Xem danh sách và thông tin người dùng',
   },
   {
-    name: 'USER:UPDATE',
+    name: PermissionEnum.USER_UPDATE,
     description: 'Cập nhật thông tin người dùng',
+  },
+
+  // Role permissions (CRUD)
+  {
+    name: PermissionEnum.ROLE_READ,
+    description: 'Xem danh sách và thông tin chi tiết vai trò (Role)',
+  },
+  {
+    name: PermissionEnum.ROLE_CREATE,
+    description: 'Tạo vai trò (Role) mới và gán quyền',
+  },
+  {
+    name: PermissionEnum.ROLE_UPDATE,
+    description: 'Cập nhật thông tin và quyền hạn của vai trò (Role)',
+  },
+  {
+    name: PermissionEnum.ROLE_DELETE,
+    description: 'Xóa vai trò (Role)',
+  },
+
+  // Permission permissions
+  {
+    name: PermissionEnum.PERMISSION_READ,
+    description: 'Xem danh sách và thông tin quyền hạn (Permission)',
   },
 ];
 
@@ -83,12 +108,12 @@ async function main() {
   // 2. Seed Role (Role cao nhất: ADMIN)
   console.log('\n👑 Đang khởi tạo Role cao nhất (ADMIN)...');
   const adminRole = await prisma.role.upsert({
-    where: { name: 'ADMIN' },
+    where: { name: RoleEnum.ADMIN },
     update: {
       description: 'Role quản trị viên cao nhất hệ thống với toàn bộ quyền',
     },
     create: {
-      name: 'ADMIN',
+      name: RoleEnum.ADMIN,
       description: 'Role quản trị viên cao nhất hệ thống với toàn bộ quyền',
     },
   });
