@@ -23,7 +23,9 @@ import { GetUserRolesUseCase } from '../../application/use-cases/get-user-roles.
 import { UpdateRoleUseCase } from '../../application/use-cases/update-role.use-case';
 import { DeleteRoleUseCase } from '../../application/use-cases/delete-role.use-case';
 import { AssignRoleUseCase } from '../../application/use-cases/assign-role.use-case';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('RBAC')
 @Controller({
   path: '/rbac',
   version: '1',
@@ -100,7 +102,7 @@ export class RbacControler {
       id,
     };
   }
-  
+
   //permisson
   @Get('/permisson')
   @UseGuards(AccessTokenGuard, PermissionsGuard)
@@ -109,4 +111,3 @@ export class RbacControler {
     return await this.getPermissonUseCase.execute();
   }
 }
-
