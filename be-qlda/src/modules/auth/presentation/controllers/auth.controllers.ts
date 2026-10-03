@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  HttpCode,
+  HttpStatus,
   Post,
   Query,
   Req,
@@ -44,6 +46,7 @@ export class AuthController {
   ) {}
 
   @Post('/login')
+  @HttpCode(HttpStatus.OK)
   async login(
     @Body() body: AuthLoginDTO,
     @Res({ passthrough: true }) res: Response,
@@ -75,6 +78,7 @@ export class AuthController {
 
   @Post('/refresh')
   @UseGuards(RefreshTokenGuard)
+  @HttpCode(HttpStatus.OK)
   async refreshToken(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
@@ -108,6 +112,7 @@ export class AuthController {
 
   @UseGuards(AccessTokenGuard)
   @Post('/logout')
+  @HttpCode(HttpStatus.OK)
   async logout(@Res({ passthrough: true }) res: Response, @Req() req: Request) {
     res.clearCookie('refreshToken');
     res.clearCookie('accessToken');
@@ -115,16 +120,19 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() body: AuthForgotDTO) {
     return await this.forgotUseCase.execute(body.email);
   }
 
   @Post('/otp-forgot')
+  @HttpCode(HttpStatus.OK)
   async otpForgot(@Body() body: AuthOTPForgotDTO) {
     return await this.otpUseCase.execute(body.email, body.otp);
   }
 
   @Post('/rest-password')
+  @HttpCode(HttpStatus.OK)
   async restPassword(
     @Query('token') token: string,
     @Body() body: AuthRestPasswordDTO,
@@ -133,6 +141,7 @@ export class AuthController {
   }
 
   @Post('/resend-otp')
+  @HttpCode(HttpStatus.OK)
   async resendOtp(@Body() body: AuthResendOtpDTO) {
     return await this.resendOtpUseCase.execute(body.email);
   }

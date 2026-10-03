@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -45,6 +47,7 @@ export class RbacControler {
   @Post('role')
   @UseGuards(AccessTokenGuard, PermissionsGuard)
   @RequirePermissions(PermissionEnum.ROLE_CREATE)
+  @HttpCode(HttpStatus.CREATED)
   async createRole(@Body() body: RbacDTO) {
     return await this.createRoleUseCase.execute(
       body.name,
@@ -56,6 +59,7 @@ export class RbacControler {
   @Get('roles')
   @UseGuards(AccessTokenGuard, PermissionsGuard)
   @RequirePermissions(PermissionEnum.ROLE_READ)
+  @HttpCode(HttpStatus.OK)
   async getRoles() {
     return await this.getRolesUseCase.execute();
   }
@@ -63,6 +67,7 @@ export class RbacControler {
   @Get(['users/:userId/roles', 'user/:userId/roles'])
   @UseGuards(AccessTokenGuard, PermissionsGuard)
   @RequirePermissions(PermissionEnum.ROLE_READ)
+  @HttpCode(HttpStatus.OK)
   async getUserRoles(@Param('userId', ParseUUIDPipe) userId: string) {
     return await this.getUserRolesUseCase.execute(userId);
   }
@@ -70,6 +75,7 @@ export class RbacControler {
   @Post(['users/:userId/roles', 'user/:userId/roles'])
   @UseGuards(AccessTokenGuard, PermissionsGuard)
   @RequirePermissions(PermissionEnum.ROLE_UPDATE)
+  @HttpCode(HttpStatus.OK)
   async assignRole(
     @Param('userId', ParseUUIDPipe) userId: string,
     @Body() body: AssignRoleDto,
@@ -85,6 +91,7 @@ export class RbacControler {
   @Patch(['roles/:id', 'role/:id'])
   @UseGuards(AccessTokenGuard, PermissionsGuard)
   @RequirePermissions(PermissionEnum.ROLE_UPDATE)
+  @HttpCode(HttpStatus.OK)
   async updateRole(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: UpdateRoleDto,
@@ -95,6 +102,7 @@ export class RbacControler {
   @Delete(['roles/:id', 'role/:id'])
   @UseGuards(AccessTokenGuard, PermissionsGuard)
   @RequirePermissions(PermissionEnum.ROLE_DELETE)
+  @HttpCode(HttpStatus.OK)
   async deleteRole(@Param('id', ParseUUIDPipe) id: string) {
     await this.deleteRoleUseCase.execute(id);
     return {
@@ -107,6 +115,7 @@ export class RbacControler {
   @Get('/permisson')
   @UseGuards(AccessTokenGuard, PermissionsGuard)
   @RequirePermissions(PermissionEnum.PERMISSION_READ)
+  @HttpCode(HttpStatus.OK)
   async getPermisson() {
     return await this.getPermissonUseCase.execute();
   }
