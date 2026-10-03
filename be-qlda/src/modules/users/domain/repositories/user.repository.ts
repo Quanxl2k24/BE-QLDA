@@ -12,4 +12,6 @@ export abstract class UserRepository {
     status?: UserStatus;
     emailVerified?: boolean;
   }): Promise<User>;
+  
+  abstract findById(id: string): Promise<User | null>;
 }

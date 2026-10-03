@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '../../domain/repositories/user.repository';
 
 @Injectable()
-export class getUserByEmailUseCase {
+export class GetUserByEmailUseCase {
   constructor(private readonly userRepository: UserRepository) {}
   async execute(email: string) {
     const user = await this.userRepository.findByEmail(email);

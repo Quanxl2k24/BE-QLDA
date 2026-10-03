@@ -3,13 +3,15 @@ import { CreateUseCase } from './application/use-cases/CreateUser.use-case';
 import { UserRepository } from './domain/repositories/user.repository';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
 import { UserController } from './presentation/controllers/user.controller';
-import { getUserByEmailUseCase } from './application/use-cases/GetUserByEmail.use-case';
+import { GetUserByEmailUseCase } from './application/use-cases/GetUserByEmail.use-case';
+import { GetMeUseCase } from './application/use-cases/GetMe.use-case';
 
 @Module({
   controllers: [UserController],
   providers: [
     CreateUseCase,
-    getUserByEmailUseCase,
+    GetUserByEmailUseCase,
+    GetMeUseCase,
     {
       provide: UserRepository,
       useClass: PrismaUserRepository,

@@ -80,4 +80,25 @@ export class PrismaUserRepository implements UserRepository {
       user.deletedAt,
     );
   }
+
+  async findById(id: string): Promise<User | null> {
+    const data = await this.prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!data) return null;
+    return new User(
+      data.id,
+      data.email,
+      data.passwordHash,
+      data.fullName,
+      data.phone,
+      toUserStatus(data.status),
+      data.emailVerified,
+      data.createdAt,
+      data.updatedAt,
+      data.deletedAt,
+    );
+  }
 }
