@@ -13,6 +13,7 @@ export enum PermissionEnum {
   // User permissions
   USER_READ = 'USER:READ',
   USER_UPDATE = 'USER:UPDATE',
+  USER_DELETE = 'USER:DELETE',
 
   // Role permissions (CRUD)
   ROLE_READ = 'ROLE:READ',
