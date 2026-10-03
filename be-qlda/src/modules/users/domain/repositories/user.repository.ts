@@ -1,8 +1,13 @@
 import { UserStatus } from '../../constans/user-enum.constans';
 import { User } from '../entities/users-entities';
 
+export interface CursorPaginatedUsers {
+  users: User[];
+  nextCursor: string | null;
+  hasNextPage: boolean;
+}
+
 export abstract class UserRepository {
-  //------create an abstract method to find a user by email-----
   abstract findByEmail(email: string): Promise<User | null>;
   abstract create(user: {
     email: string;
@@ -12,7 +17,7 @@ export abstract class UserRepository {
     status?: UserStatus;
     emailVerified?: boolean;
   }): Promise<User>;
-  
+
   abstract findById(id: string): Promise<User | null>;
   abstract update(
     id: string,
@@ -21,4 +26,8 @@ export abstract class UserRepository {
       phone?: string | null;
     },
   ): Promise<User>;
+  abstract findAllWithCursor(params: {
+    cursor?: string;
+    limit: number;
+  }): Promise<CursorPaginatedUsers>;
 }

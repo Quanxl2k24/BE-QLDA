@@ -130,4 +130,60 @@ export class PrismaUserRepository implements UserRepository {
       updated.deletedAt,
     );
   }
+  async findAllWithCursor(params: {
+    cursor?: string;
+    limit: number;
+  }): Promise<{
+    users: User[];
+    nextCursor: string | null;
+    hasNextPage: boolean;
+  }> {
+    const { cursor, limit } = params;
+
+    // Lấy dư 1 phần tử (limit + 1) để kiểm tra có trang sau không
+    const records = await this.prisma.user.findMany({
+      take: limit + 1,
+      skip: cursor ? 1 : 0, // Bỏ qua chính bản ghi cursor
+      cursor: cursor ? { id: cursor } : undefined,
+      where: {
+        deletedAt: null,
+      },
+      orderBy: [
+        { createdAt: 'desc' },
+        { id: 'desc' }, // Đảm bảo sắp xếp tuyệt đối ổn định
+      ],
+    });
+
+    const hasNextPage = records.length > limit;
+
+    // Nếu có trang kế tiếp thì cắt phần tử thừa thứ (limit + 1)
+    if (hasNextPage) {
+      records.pop();
+    }
+
+    const nextCursor =
+      hasNextPage && records.length > 0 ? records[records.length - 1].id : null;
+
+    const users = records.map(
+      (item) =>
+        new User(
+          item.id,
+          item.email,
+          item.passwordHash,
+          item.fullName,
+          item.phone,
+          toUserStatus(item.status),
+          item.emailVerified,
+          item.createdAt,
+          item.updatedAt,
+          item.deletedAt,
+        ),
+    );
+
+    return {
+      users,
+      nextCursor,
+      hasNextPage,
+    };
+  }
 }
