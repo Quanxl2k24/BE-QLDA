@@ -8,6 +8,8 @@ import { GetMeUseCase } from './application/use-cases/GetMe.use-case';
 import { UpdateUserUseCase } from './application/use-cases/UpdateUser.use-case';
 import { GetUsersCursorUseCase } from './application/use-cases/GetUsers.use-case';
 import { GetUserByIdUseCase } from './application/use-cases/GetUserById.use-case';
+import { UpdateUserStatusUseCase } from './application/use-cases/UpdateUserStatus.use-case';
+import { DeleteUserUseCase } from './application/use-cases/DeleteUser.use-case';
 
 @Module({
   controllers: [UserController],
@@ -18,6 +20,8 @@ import { GetUserByIdUseCase } from './application/use-cases/GetUserById.use-case
     UpdateUserUseCase,
     GetUsersCursorUseCase,
     GetUserByIdUseCase,
+    UpdateUserStatusUseCase,
+    DeleteUserUseCase,
     {
       provide: UserRepository,
       useClass: PrismaUserRepository,

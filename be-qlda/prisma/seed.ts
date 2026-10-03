@@ -47,6 +47,10 @@ const PERMISSIONS = [
     name: PermissionEnum.USER_UPDATE,
     description: 'Cập nhật thông tin người dùng',
   },
+  {
+    name: PermissionEnum.USER_DELETE,
+    description: 'Xóa người dùng khỏi hệ thống',
+  },
 
   // Role permissions (CRUD)
   {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma/prisma.services';
-import { toUserStatus } from '../../constans/user-enum.constans';
+import { toUserStatus, UserStatus } from '../../constans/user-enum.constans';
 import { User } from '../../domain/entities/users-entities';
 import { UserRepository } from '../../domain/repositories/user.repository';
 
@@ -130,10 +130,7 @@ export class PrismaUserRepository implements UserRepository {
       updated.deletedAt,
     );
   }
-  async findAllWithCursor(params: {
-    cursor?: string;
-    limit: number;
-  }): Promise<{
+  async findAllWithCursor(params: { cursor?: string; limit: number }): Promise<{
     users: User[];
     nextCursor: string | null;
     hasNextPage: boolean;
@@ -185,5 +182,32 @@ export class PrismaUserRepository implements UserRepository {
       nextCursor,
       hasNextPage,
     };
+  }
+
+  async updateStatus(id: string, status: UserStatus): Promise<User> {
+    const updated = await this.prisma.user.update({
+      where: { id },
+      data: { status },
+    });
+
+    return new User(
+      updated.id,
+      updated.email,
+      updated.passwordHash,
+      updated.fullName,
+      updated.phone,
+      toUserStatus(updated.status),
+      updated.emailVerified,
+      updated.createdAt,
+      updated.updatedAt,
+      updated.deletedAt,
+    );
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
   }
 }

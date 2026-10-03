@@ -1,16 +1,16 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
+  Post,
+  Query,
+  UseGuards,
   Param,
   ParseUUIDPipe,
   Patch,
-  Post,
-  Query,
-  Req,
-  UseGuards,
 } from '@nestjs/common';
 import { CreateUseCase } from '../../application/use-cases/CreateUser.use-case';
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -24,7 +24,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { GetMeUseCase } from '../../application/use-cases/GetMe.use-case';
-import type { Request } from 'express';
 import { AccessTokenGuard } from '@/modules/auth/infrastructure/guards/access-token.guard';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import * as types from '@/common/types/types';
@@ -36,6 +35,9 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { GetUsersCursorUseCase } from '../../application/use-cases/GetUsers.use-case';
 import { GetUsersCursorDto } from '../dto/get-users-cursor.dto';
 import { GetUserByIdUseCase } from '../../application/use-cases/GetUserById.use-case';
+import { UpdateUserStatusDto } from '../dto/update-user-status.dto';
+import { UpdateUserStatusUseCase } from '../../application/use-cases/UpdateUserStatus.use-case';
+import { DeleteUserUseCase } from '../../application/use-cases/DeleteUser.use-case';
 
 @ApiTags('User')
 @Controller({
@@ -50,21 +52,21 @@ export class UserController {
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly getUsersCursorUseCase: GetUsersCursorUseCase,
     private readonly getUserByIdUseCase: GetUserByIdUseCase,
+    private readonly updateUserStatusUseCase: UpdateUserStatusUseCase,
+    private readonly deleteUserUseCase: DeleteUserUseCase,
   ) {}
 
   //everybody
 
   @Get('user/me')
-  @UseGuards(AccessTokenGuard, PermissionsGuard)
-  @RequirePermissions(PermissionEnum.USER_READ)
+  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
   async getMe(@CurrentUser() user: types.PayloadToken) {
     return await this.getMeUseCase.execute(user);
   }
 
   @Patch('user/me')
-  @UseGuards(AccessTokenGuard, PermissionsGuard)
-  @RequirePermissions(PermissionEnum.USER_UPDATE)
+  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
   async updateUser(
     @CurrentUser() user: types.PayloadToken,
@@ -90,6 +92,9 @@ export class UserController {
   }
 
   @Get('user')
+  @UseGuards(AccessTokenGuard, PermissionsGuard)
+  @RequirePermissions(PermissionEnum.USER_READ)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Lấy thông tin người dùng theo email',
@@ -112,6 +117,9 @@ export class UserController {
   }
 
   @Get('user/:id')
+  @UseGuards(AccessTokenGuard, PermissionsGuard)
+  @RequirePermissions(PermissionEnum.USER_READ)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Lấy thông tin người dùng theo ID',
@@ -145,9 +153,9 @@ export class UserController {
   }
 
   @Get('users')
-  // @UseGuards(AccessTokenGuard, PermissionsGuard)
-  // @RequirePermissions(PermissionEnum.USER_READ)
-  // @ApiBearerAuth()
+  @UseGuards(AccessTokenGuard, PermissionsGuard)
+  @RequirePermissions(PermissionEnum.USER_READ)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Lấy danh sách người dùng (Phân trang Cursor)',
@@ -169,14 +177,25 @@ export class UserController {
           items: {
             type: 'object',
             properties: {
-              id: { type: 'string', example: 'c4e4bf7e-07a8-48b2-b13c-0e2bbd8e0556' },
+              id: {
+                type: 'string',
+                example: 'c4e4bf7e-07a8-48b2-b13c-0e2bbd8e0556',
+              },
               email: { type: 'string', example: 'user@example.com' },
               fullName: { type: 'string', example: 'Nguyen Van A' },
               phone: { type: 'string', example: '0987654321' },
               status: { type: 'string', example: 'ACTIVE' },
               emailVerified: { type: 'boolean', example: false },
-              createdAt: { type: 'string', format: 'date-time', example: '2026-10-04T00:00:00.000Z' },
-              updatedAt: { type: 'string', format: 'date-time', example: '2026-10-04T00:00:00.000Z' },
+              createdAt: {
+                type: 'string',
+                format: 'date-time',
+                example: '2026-10-04T00:00:00.000Z',
+              },
+              updatedAt: {
+                type: 'string',
+                format: 'date-time',
+                example: '2026-10-04T00:00:00.000Z',
+              },
               deletedAt: { type: 'string', nullable: true, example: null },
             },
           },
@@ -202,6 +221,90 @@ export class UserController {
       message: 'Lấy danh sách người dùng thành công',
       data: result.items,
       pagination: result.pagination,
+    };
+  }
+
+  @Patch('users/:id/status')
+  @UseGuards(AccessTokenGuard, PermissionsGuard)
+  @RequirePermissions(PermissionEnum.USER_UPDATE)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Cập nhật trạng thái người dùng (Admin)',
+    description:
+      'Thay đổi trạng thái của tài khoản người dùng (ACTIVE, INACTIVE, SUSPENDED, BANNED). Admin không thể tự khóa chính mình.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID của người dùng cần đổi trạng thái',
+    example: 'c4e4bf7e-07a8-48b2-b13c-0e2bbd8e0556',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Cập nhật trạng thái thành công',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Trạng thái không hợp lệ hoặc tự khóa chính mình',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Không tìm thấy người dùng',
+  })
+  async updateUserStatus(
+    @CurrentUser() user: types.PayloadToken,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() dto: UpdateUserStatusDto,
+  ) {
+    const data = await this.updateUserStatusUseCase.execute({
+      currentUserId: user.sub,
+      targetId: id,
+      status: dto.status,
+    });
+    return {
+      message: 'Cập nhật trạng thái người dùng thành công',
+      data,
+    };
+  }
+
+  @Delete('users/:id')
+  @UseGuards(AccessTokenGuard, PermissionsGuard)
+  @RequirePermissions(PermissionEnum.USER_DELETE)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Xóa người dùng (Soft Delete - Admin)',
+    description:
+      'Xóa mềm người dùng khỏi hệ thống bằng cách cập nhật deletedAt. Admin không thể tự xóa tài khoản của chính mình.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID của người dùng cần xóa',
+    example: 'c4e4bf7e-07a8-48b2-b13c-0e2bbd8e0556',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Xóa người dùng thành công',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Không thể tự xóa chính mình hoặc tài khoản đã bị xóa',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Không tìm thấy người dùng',
+  })
+  async deleteUser(
+    @CurrentUser() user: types.PayloadToken,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    const data = await this.deleteUserUseCase.execute({
+      currentUserId: user.sub,
+      targetId: id,
+    });
+    return {
+      message: 'Xóa người dùng thành công',
+      data,
     };
   }
 }

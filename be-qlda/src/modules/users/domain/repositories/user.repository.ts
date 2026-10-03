@@ -30,4 +30,6 @@ export abstract class UserRepository {
     cursor?: string;
     limit: number;
   }): Promise<CursorPaginatedUsers>;
+  abstract updateStatus(id: string, status: UserStatus): Promise<User>;
+  abstract delete(id: string): Promise<void>;
 }
