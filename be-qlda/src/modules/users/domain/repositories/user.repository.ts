@@ -14,4 +14,11 @@ export abstract class UserRepository {
   }): Promise<User>;
   
   abstract findById(id: string): Promise<User | null>;
+  abstract update(
+    id: string,
+    data: {
+      fullName?: string | null;
+      phone?: string | null;
+    },
+  ): Promise<User>;
 }

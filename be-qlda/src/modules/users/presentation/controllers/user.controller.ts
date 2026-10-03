@@ -23,6 +23,8 @@ import * as types from '@/common/types/types';
 import { PermissionsGuard } from '@/common/guards/permissions.guard';
 import { PermissionEnum } from '@/common/enums';
 import { RequirePermissions } from '@/common/decorators/permissions.decorator';
+import { UpdateUserUseCase } from '../../application/use-cases/UpdateUser.use-case';
+import { UpdateUserDto } from '../dto/update-user.dto';
 
 @ApiTags('User')
 @Controller({
@@ -34,6 +36,7 @@ export class UserController {
     private readonly createUseCase: CreateUseCase,
     private readonly getUserByEmailUseCase: GetUserByEmailUseCase,
     private readonly getMeUseCase: GetMeUseCase,
+    private readonly updateUserUseCase: UpdateUserUseCase,
   ) {}
 
   //everybody
@@ -46,8 +49,20 @@ export class UserController {
     return await this.getMeUseCase.execute(user);
   }
 
-
-  
+  @Patch('user/me')
+  @UseGuards(AccessTokenGuard, PermissionsGuard)
+  @RequirePermissions(PermissionEnum.USER_UPDATE)
+  @HttpCode(HttpStatus.OK)
+  async updateUser(
+    @CurrentUser() user: types.PayloadToken,
+    @Body() dto: UpdateUserDto,
+  ) {
+    const data = await this.updateUserUseCase.execute(user.sub, dto);
+    return {
+      message: 'Cập nhật thông tin thành công',
+      data,
+    };
+  }
 
   //admin
   @Post('user')

@@ -101,4 +101,33 @@ export class PrismaUserRepository implements UserRepository {
       data.deletedAt,
     );
   }
+
+  async update(
+    id: string,
+    data: {
+      fullName?: string | null;
+      phone?: string | null;
+    },
+  ): Promise<User> {
+    const updated = await this.prisma.user.update({
+      where: { id },
+      data: {
+        ...(data.fullName !== undefined && { fullName: data.fullName }),
+        ...(data.phone !== undefined && { phone: data.phone }),
+      },
+    });
+
+    return new User(
+      updated.id,
+      updated.email,
+      updated.passwordHash,
+      updated.fullName,
+      updated.phone,
+      toUserStatus(updated.status),
+      updated.emailVerified,
+      updated.createdAt,
+      updated.updatedAt,
+      updated.deletedAt,
+    );
+  }
 }
