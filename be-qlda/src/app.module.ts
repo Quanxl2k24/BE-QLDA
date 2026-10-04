@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { MailModule } from './share/mail/mail.module';
 import { Redis } from './database/redis/redis.module';
 import { RabcModule } from './modules/rbac/rbac.moudule';
+import { CategoriesModule } from './modules/categories/categories.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RabcModule } from './modules/rbac/rbac.moudule';
     UserModule,
     AuthModule,
     RabcModule,
+    CategoriesModule,
   ],
   controllers: [],
   providers: [],
