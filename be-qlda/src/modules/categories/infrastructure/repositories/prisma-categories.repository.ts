@@ -81,6 +81,114 @@ export class PrismaCategoriesRepository implements CategoriesRepository {
       hasNextPage,
     };
   }
+
+  async getCategoriesTree(): Promise<CategoriesEntity[]> {
+    const records = await this.prisma.category.findMany({
+      orderBy: [{ createdAt: 'asc' }],
+    });
+
+    const categoryMap = new Map<string, CategoriesEntity>();
+    const rootCategories: CategoriesEntity[] = [];
+
+    for (const item of records) {
+      categoryMap.set(
+        item.id,
+        new CategoriesEntity(
+          item.id,
+          item.name,
+          item.slug,
+          item.status,
+          item.createdAt,
+          item.updatedAt,
+          item.description,
+          item.parentId,
+          [],
+        ),
+      );
+    }
+
+    for (const item of records) {
+      const node = categoryMap.get(item.id)!;
+      if (item.parentId && categoryMap.has(item.parentId)) {
+        categoryMap.get(item.parentId)!.children!.push(node);
+      } else {
+        rootCategories.push(node);
+      }
+    }
+
+    return rootCategories;
+  }
+
+  async findById(id: string): Promise<CategoriesEntity | null> {
+    const category = await this.prisma.category.findUnique({
+      where: { id },
+    });
+
+    if (!category) return null;
+
+    return new CategoriesEntity(
+      category.id,
+      category.name,
+      category.slug,
+      category.status,
+      category.createdAt,
+      category.updatedAt,
+      category.description,
+      category.parentId,
+    );
+  }
+
+  async findBySlug(slug: string): Promise<CategoriesEntity | null> {
+    const category = await this.prisma.category.findUnique({
+      where: { slug },
+    });
+
+    if (!category) return null;
+
+    return new CategoriesEntity(
+      category.id,
+      category.name,
+      category.slug,
+      category.status,
+      category.createdAt,
+      category.updatedAt,
+      category.description,
+      category.parentId,
+    );
+  }
+
+  async updateCategory(
+    id: string,
+    data: {
+      name: string;
+      slug?: string;
+      status: string;
+      description?: string | null;
+      parentId?: string | null;
+    },
+  ): Promise<CategoriesEntity> {
+    const category = await this.prisma.category.update({
+      where: { id },
+      data: {
+        name: data.name,
+        ...(data.slug ? { slug: data.slug } : {}),
+        status: data.status,
+        description: data.description ?? null,
+        parentId: data.parentId ?? null,
+      },
+    });
+
+    return new CategoriesEntity(
+      category.id,
+      category.name,
+      category.slug,
+      category.status,
+      category.createdAt,
+      category.updatedAt,
+      category.description,
+      category.parentId,
+    );
+  }
 }
 
 // public readonly id: string,
