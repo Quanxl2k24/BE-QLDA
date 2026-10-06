@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CategoriesRepository } from '../../domain/repositories/categories.repository';
 
 @Injectable()
@@ -12,8 +12,7 @@ export class CreateCategoriesUseCase {
     parentId?: string;
   }) {
     const category = await this.categoriesRepository.createCategory(body);
-    return {
-      message: 'hello',
-    };
+    if (!category) throw new BadRequestException('Tạo danh mục lỗi');
+    return category;
   }
 }

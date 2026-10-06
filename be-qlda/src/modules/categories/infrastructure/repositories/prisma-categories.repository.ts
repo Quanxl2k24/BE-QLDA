@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { CategoriesRepository } from '../../domain/repositories/categories.repository';
 import { CategoriesEntity } from '../../domain/entities/categories.entity';
 import { PrismaService } from '@/database/prisma/prisma.services';
-import { Category } from '@prisma/client';
 
 @Injectable()
 export class PrismaCategoriesRepository implements CategoriesRepository {
@@ -38,6 +37,49 @@ export class PrismaCategoriesRepository implements CategoriesRepository {
       category.description,
       category.parentId,
     );
+  }
+
+  async getCategories(params: { cursor?: string; limit: number }): Promise<{
+    categories: CategoriesEntity[];
+    nextCursor: string | null;
+    hasNextPage: boolean;
+  }> {
+    const { cursor, limit } = params;
+    const records = await this.prisma.category.findMany({
+      take: limit + 1,
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    });
+
+    const hasNextPage = records.length > limit;
+
+    if (hasNextPage) {
+      records.pop();
+    }
+
+    const nextCursor =
+      hasNextPage && records.length > 0 ? records[records.length - 1].id : null;
+
+    const data = records.map(
+      (item) =>
+        new CategoriesEntity(
+          item.id,
+          item.name,
+          item.slug,
+          item.status,
+          item.createdAt,
+          item.updatedAt,
+          item.description,
+          item.parentId,
+        ),
+    );
+
+    return {
+      categories: data,
+      nextCursor,
+      hasNextPage,
+    };
   }
 }
 

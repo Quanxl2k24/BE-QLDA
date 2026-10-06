@@ -8,4 +8,10 @@ export abstract class CategoriesRepository {
     description?: string | null;
     parentId?: string | null;
   }): Promise<CategoriesEntity | null>;
+
+  abstract getCategories(data: { cursor?: string; limit: number }): Promise<{
+    categories: CategoriesEntity[];
+    nextCursor: string | null;
+    hasNextPage: boolean;
+  }>;
 }

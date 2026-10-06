@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CreateCategoriesUseCase } from '../../application/use-cases/CreateCategories.use-case';
@@ -12,6 +14,8 @@ import { AccessTokenGuard } from '@/modules/auth/infrastructure/guards/access-to
 import { PermissionsGuard } from '@/common/guards/permissions.guard';
 import { RequirePermissions } from '@/common/decorators/permissions.decorator';
 import { PermissionEnum } from '@/common/enums';
+import { GetCategoriesUseCase } from '../../application/use-cases/GetCategories.use-case';
+import { CategoriesDto } from '../dto/get-categories.dto';
 
 @Controller({
   path: 'categories',
@@ -20,6 +24,7 @@ import { PermissionEnum } from '@/common/enums';
 export class CategoriesController {
   constructor(
     private readonly createCategoriesUseCase: CreateCategoriesUseCase,
+    private readonly getCategoriesUseCase: GetCategoriesUseCase,
   ) {}
 
   @UseGuards(AccessTokenGuard, PermissionsGuard)
@@ -28,5 +33,10 @@ export class CategoriesController {
   @Post()
   async createCategories(@Body() body: CreateCategoriesDto) {
     return await this.createCategoriesUseCase.execute(body);
+  }
+
+  @Get()
+  async getCategories(@Query() dto: CategoriesDto) {
+    return await this.getCategoriesUseCase.execute(dto);
   }
 }

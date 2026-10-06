@@ -13,7 +13,6 @@ export class GetUsersCursorUseCase {
       limit,
     });
 
-    // Xóa passwordHash khỏi từng user
     const safeUsers = result.users.map((user) => {
       const { passwordHash, ...data } = user;
       return data;
