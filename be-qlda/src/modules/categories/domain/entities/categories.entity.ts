@@ -9,6 +9,7 @@ export class CategoriesEntity {
 
     public readonly description?: string | null,
     public readonly parentId?: string | null,
+    public children?: CategoriesEntity[],
   ) {}
 }
 
