@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CategoriesRepository } from '../../domain/repositories/categories.repository';
 import { CategoriesEntity } from '../../domain/entities/categories.entity';
 import { PrismaService } from '@/database/prisma/prisma.services';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PrismaCategoriesRepository implements CategoriesRepository {
@@ -39,13 +40,39 @@ export class PrismaCategoriesRepository implements CategoriesRepository {
     );
   }
 
-  async getCategories(params: { cursor?: string; limit: number }): Promise<{
+  async getCategories(params: {
+    cursor?: string;
+    limit: number;
+    search?: string;
+    status?: string;
+    parentId?: string;
+  }): Promise<{
     categories: CategoriesEntity[];
     nextCursor: string | null;
     hasNextPage: boolean;
   }> {
-    const { cursor, limit } = params;
+    const { cursor, limit, search, status, parentId } = params;
+
+    const where: Prisma.CategoryWhereInput = {};
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { slug: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (parentId !== undefined && parentId !== null) {
+      where.parentId = parentId === 'null' ? null : parentId;
+    }
+
     const records = await this.prisma.category.findMany({
+      where,
       take: limit + 1,
       skip: cursor ? 1 : 0,
       cursor: cursor ? { id: cursor } : undefined,
@@ -188,6 +215,24 @@ export class PrismaCategoriesRepository implements CategoriesRepository {
       category.description,
       category.parentId,
     );
+  }
+
+  async countSubCategories(id: string): Promise<number> {
+    return await this.prisma.category.count({
+      where: { parentId: id },
+    });
+  }
+
+  async countProducts(id: string): Promise<number> {
+    return await this.prisma.product.count({
+      where: { categoryId: id },
+    });
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.category.delete({
+      where: { id },
+    });
   }
 }
 

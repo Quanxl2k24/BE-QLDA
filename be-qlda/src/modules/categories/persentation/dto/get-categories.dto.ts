@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsUUID, Max, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsInt, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
 
 export class CategoriesDto {
   @ApiPropertyOptional({
@@ -27,4 +27,34 @@ export class CategoriesDto {
   @Min(1, { message: 'Limit tối thiểu là 1' })
   @Max(100, { message: 'Limit tối đa là 100' })
   limit?: number = 10;
+
+  @ApiPropertyOptional({
+    description: 'Từ khóa tìm kiếm theo tên hoặc mô tả danh mục',
+    example: 'Bánh nướng',
+    type: String,
+  })
+  @IsOptional()
+  @IsString({ message: 'Từ khóa tìm kiếm phải là chuỗi' })
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  search?: string;
+
+  @ApiPropertyOptional({
+    description: 'Lọc theo trạng thái danh mục (ACTIVE, INACTIVE, ...)',
+    example: 'ACTIVE',
+    type: String,
+  })
+  @IsOptional()
+  @IsString({ message: 'Trạng thái phải là chuỗi' })
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  status?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Lọc theo ID danh mục cha (UUID). Truyền "null" để lấy các danh mục gốc.',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    type: String,
+  })
+  @IsOptional()
+  @IsString({ message: 'parentId phải là chuỗi' })
+  parentId?: string;
 }

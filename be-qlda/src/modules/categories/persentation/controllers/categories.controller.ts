@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -22,6 +23,7 @@ import { GetCategoriesTreeUseCase } from '../../application/use-cases/GetCategor
 import { CategoriesDto } from '../dto/get-categories.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
 import { UpdateCategoryUseCase } from '../../application/use-cases/UpdateCategory.use-case';
+import { DeleteCategoryUseCase } from '../../application/use-cases/DeleteCategory.use-case';
 
 @Controller({
   path: '',
@@ -33,6 +35,7 @@ export class CategoriesController {
     private readonly getCategoriesUseCase: GetCategoriesUseCase,
     private readonly getCategoriesTreeUseCase: GetCategoriesTreeUseCase,
     private readonly updateCategoryUseCase: UpdateCategoryUseCase,
+    private readonly deleteCategoryUseCase: DeleteCategoryUseCase,
   ) {}
 
   //auth
@@ -53,6 +56,20 @@ export class CategoriesController {
     @Body() body: UpdateCategoryDto,
   ) {
     return await this.updateCategoryUseCase.execute(id, body);
+  }
+
+  @Delete('category/:id')
+  @UseGuards(AccessTokenGuard, PermissionsGuard)
+  @RequirePermissions(PermissionEnum.PRODUCT_DELETE)
+  @HttpCode(HttpStatus.OK)
+  async deleteCategory(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    const data = await this.deleteCategoryUseCase.execute(id);
+    return {
+      message: 'Xóa danh mục thành công',
+      data,
+    };
   }
 
   //public

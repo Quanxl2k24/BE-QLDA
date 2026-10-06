@@ -6,6 +6,7 @@ import { PrismaCategoriesRepository } from './infrastructure/repositories/prisma
 import { GetCategoriesUseCase } from './application/use-cases/GetCategories.use-case';
 import { GetCategoriesTreeUseCase } from './application/use-cases/GetCategoriesTree.use-case';
 import { UpdateCategoryUseCase } from './application/use-cases/UpdateCategory.use-case';
+import { DeleteCategoryUseCase } from './application/use-cases/DeleteCategory.use-case';
 
 @Module({
   controllers: [CategoriesController],
@@ -14,6 +15,7 @@ import { UpdateCategoryUseCase } from './application/use-cases/UpdateCategory.us
     GetCategoriesUseCase,
     GetCategoriesTreeUseCase,
     UpdateCategoryUseCase,
+    DeleteCategoryUseCase,
     {
       provide: CategoriesRepository,
       useClass: PrismaCategoriesRepository,

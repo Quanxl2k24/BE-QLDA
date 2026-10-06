@@ -9,7 +9,13 @@ export abstract class CategoriesRepository {
     parentId?: string | null;
   }): Promise<CategoriesEntity | null>;
 
-  abstract getCategories(data: { cursor?: string; limit: number }): Promise<{
+  abstract getCategories(data: {
+    cursor?: string;
+    limit: number;
+    search?: string;
+    status?: string;
+    parentId?: string;
+  }): Promise<{
     categories: CategoriesEntity[];
     nextCursor: string | null;
     hasNextPage: boolean;
@@ -31,4 +37,10 @@ export abstract class CategoriesRepository {
       parentId?: string | null;
     },
   ): Promise<CategoriesEntity>;
+
+  abstract countSubCategories(id: string): Promise<number>;
+
+  abstract countProducts(id: string): Promise<number>;
+
+  abstract delete(id: string): Promise<void>;
 }
