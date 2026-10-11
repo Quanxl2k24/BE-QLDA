@@ -108,9 +108,9 @@ export class UpdateProductUseCase {
     // 5. Cập nhật sản phẩm
     const updated = await this.productsRepository.updateProduct(id, dto);
 
-    // 6. Xóa cache danh sách sản phẩm trên Redis để đảm bảo dữ liệu mới nhất
+    // 6. Xóa cache sản phẩm trên Redis để đảm bảo dữ liệu mới nhất
     try {
-      const keys = await this.redis.keys('products:list:*');
+      const keys = await this.redis.keys('products:*');
       if (keys.length > 0) {
         await this.redis.del(...keys);
       }

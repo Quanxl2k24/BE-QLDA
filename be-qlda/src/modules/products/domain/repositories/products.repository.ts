@@ -48,6 +48,8 @@ export abstract class ProductsRepository {
 
   abstract findBySlug(slug: string): Promise<ProductsEntity | null>;
 
+  abstract findDetail(identifier: string): Promise<ProductWithVariants | null>;
+
   abstract findVariantsBySkus(skus: string[]): Promise<ProductVariantEntity[]>;
 
   abstract checkCategoryExists(categoryId: string): Promise<boolean>;

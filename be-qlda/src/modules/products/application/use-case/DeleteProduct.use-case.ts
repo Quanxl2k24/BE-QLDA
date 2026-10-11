@@ -29,9 +29,9 @@ export class DeleteProductUseCase {
 
     await this.productsRepository.delete(id);
 
-    // Xóa cache danh sách sản phẩm trên Redis
+    // Xóa cache sản phẩm trên Redis
     try {
-      const keys = await this.redis.keys('products:list:*');
+      const keys = await this.redis.keys('products:*');
       if (keys.length > 0) {
         await this.redis.del(...keys);
       }

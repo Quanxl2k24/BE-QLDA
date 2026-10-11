@@ -32,6 +32,7 @@ import { PermissionEnum } from '@/common/enums';
 import { GetProductsUseCase } from '../../application/use-case/GetProducts.use-case';
 import { UpdateProductUseCase } from '../../application/use-case/UpdateProduct.use-case';
 import { DeleteProductUseCase } from '../../application/use-case/DeleteProduct.use-case';
+import { GetProductDetailUseCase } from '../../application/use-case/GetProductDetail.use-case';
 
 @ApiTags('Products')
 @Controller({
@@ -42,6 +43,7 @@ export class ProductsController {
   constructor(
     private readonly createProductUseCase: CreateProductUseCase,
     private readonly getProductUseCase: GetProductsUseCase,
+    private readonly getProductDetailUseCase: GetProductDetailUseCase,
     private readonly updateProductUseCase: UpdateProductUseCase,
     private readonly deleteProductUseCase: DeleteProductUseCase,
   ) {}
@@ -127,5 +129,24 @@ export class ProductsController {
   @ApiResponse({ status: 200, description: 'Lấy danh sách sản phẩm thành công' })
   async getProducts(@Query() query: GetProductsCursorDto) {
     return await this.getProductUseCase.execute(query);
+  }
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Lấy thông tin chi tiết sản phẩm theo ID hoặc Slug' })
+  @ApiParam({
+    name: 'id',
+    description: 'ID (UUID v4) hoặc Slug của sản phẩm',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiResponse({ status: 200, description: 'Lấy chi tiết sản phẩm thành công' })
+  @ApiResponse({ status: 400, description: 'ID hoặc slug không hợp lệ' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy sản phẩm' })
+  async getProductDetail(@Param('id') id: string) {
+    const data = await this.getProductDetailUseCase.execute(id);
+    return {
+      message: 'Lấy chi tiết sản phẩm thành công',
+      data,
+    };
   }
 }

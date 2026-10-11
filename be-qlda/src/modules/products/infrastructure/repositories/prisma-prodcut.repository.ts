@@ -59,6 +59,60 @@ export class PrismaProduct implements ProductsRepository {
     };
   }
 
+  async findDetail(identifier: string): Promise<ProductWithVariants | null> {
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        identifier,
+      );
+
+    const product = await this.prisma.product.findFirst({
+      where: {
+        deletedAt: null,
+        ...(isUuid ? { id: identifier } : { slug: identifier }),
+      },
+      include: {
+        variants: true,
+      },
+    });
+
+    if (!product) return null;
+
+    const productEntity = new ProductsEntity(
+      product.id,
+      product.name,
+      product.slug,
+      product.brand,
+      product.status,
+      product.createdAt,
+      product.updatedAt,
+      product.categoryId,
+      product.description,
+      product.deletedAt,
+    );
+
+    const variantEntities = (product.variants || []).map(
+      (v) =>
+        new ProductVariantEntity(
+          v.id,
+          v.productId,
+          v.sku,
+          v.name,
+          Number(v.price),
+          v.stock,
+          v.status,
+          v.createdAt,
+          v.updatedAt,
+          v.originalPrice !== null ? Number(v.originalPrice) : null,
+          v.weight,
+        ),
+    );
+
+    return {
+      product: productEntity,
+      variants: variantEntities,
+    };
+  }
+
   async checkCategoryExists(categoryId: string): Promise<boolean> {
     const category = await this.prisma.category.findUnique({
       where: { id: categoryId },
