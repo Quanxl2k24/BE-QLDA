@@ -9,6 +9,7 @@ import { Redis } from './database/redis/redis.module';
 import { RabcModule } from './modules/rbac/rbac.moudule';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { ProductsModule } from './modules/products/products.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ProductsModule } from './modules/products/products.module';
     RabcModule,
     CategoriesModule,
     ProductsModule,
+    UploadModule,
   ],
   controllers: [],
   providers: [],

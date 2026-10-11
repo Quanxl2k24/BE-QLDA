@@ -23,6 +23,9 @@ export enum PermissionEnum {
 
   // Permission permissions
   PERMISSION_READ = 'PERMISSION:READ',
+
+  // Upload permissions
+  FILE_UPLOAD = 'FILE_UPLOAD',
 }
 
 export enum RoleEnum {
