@@ -75,6 +75,12 @@ const PERMISSIONS = [
     name: PermissionEnum.PERMISSION_READ,
     description: 'Xem danh sách và thông tin quyền hạn (Permission)',
   },
+
+  // Upload permissions
+  {
+    name: PermissionEnum.FILE_UPLOAD,
+    description: 'Tải tập tin hoặc hình ảnh lên hệ thống',
+  },
 ];
 
 async function main() {
@@ -88,7 +94,7 @@ async function main() {
 
   if (!adminEmail || !adminPassword) {
     throw new Error(
-      '❌ Thiếu biến môi trường bắt buộc: Vui lòng cấu hình ADMIN_EMAIL và ADMIN_PASSWORD trong file .env trước khi chạy seed!'
+      '❌ Thiếu biến môi trường bắt buộc: Vui lòng cấu hình ADMIN_EMAIL và ADMIN_PASSWORD trong file .env trước khi chạy seed!',
     );
   }
 
@@ -181,12 +187,16 @@ async function main() {
       roleId: adminRole.id,
     },
   });
-  console.log(`  - Đã gán Role [${adminRole.name}] cho User [${adminUser.email}]`);
+  console.log(
+    `  - Đã gán Role [${adminRole.name}] cho User [${adminUser.email}]`,
+  );
 
   console.log('\n✅ Seed dữ liệu thành công!');
   console.log('--------------------------------------------------');
   console.log(`📧 Admin Email   : ${adminEmail}`);
-  console.log(`🔑 Admin Password: ${'*'.repeat(adminPassword.length)} (đã mã hóa qua Argon2)`);
+  console.log(
+    `🔑 Admin Password: ${'*'.repeat(adminPassword.length)} (đã mã hóa qua Argon2)`,
+  );
   console.log(`🛡️  Role           : ${adminRole.name}`);
   console.log(`📋 Permissions    : ${permissionsMap.size} quyền`);
   console.log('--------------------------------------------------\n');

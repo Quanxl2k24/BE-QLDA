@@ -30,4 +30,9 @@ export const envValidationSchema = Joi.object({
 
   // Thời gian sống OTP tính bằng giây (mặc định 300s = 5 phút)
   OTP_TTL_SECONDS: Joi.number().integer().min(60).default(300),
+
+  // Cloudinary
+  CLOUDINARY_CLOUD_NAME: Joi.string().allow('', null).optional(),
+  CLOUDINARY_API_KEY: Joi.string().allow('', null).optional(),
+  CLOUDINARY_API_SECRET: Joi.string().allow('', null).optional(),
 });
