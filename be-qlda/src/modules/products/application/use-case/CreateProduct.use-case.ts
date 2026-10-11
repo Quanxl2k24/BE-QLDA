@@ -11,13 +11,11 @@ export class CreateProductUseCase {
   constructor(private readonly productsRepository: ProductsRepository) {}
 
   async execute(dto: CreateProductDto) {
-    // 1. Kiểm tra slug đã tồn tại chưa
     const existingSlug = await this.productsRepository.findBySlug(dto.slug);
     if (existingSlug) {
       throw new ConflictException('Đường dẫn thân thiện (slug) đã tồn tại');
     }
 
-    // 2. Kiểm tra SKU trùng lặp giữa các biến thể trong request và trong DB
     if (dto.variants && dto.variants.length > 0) {
       const skus = dto.variants.map((v) => v.sku);
       const uniqueSkus = new Set(skus);
@@ -37,7 +35,6 @@ export class CreateProductUseCase {
       }
     }
 
-    // 3. Tạo sản phẩm cùng các biến thể
     const result = await this.productsRepository.createProduct(dto);
     if (!result) {
       throw new BadRequestException('Tạo sản phẩm thất bại');
