@@ -1,4 +1,5 @@
 import { ProductStatus } from '@/common/enums/product.enum';
+import { ProductImageEntity } from './product-image.entity';
 
 export class ProductsEntity {
   constructor(
@@ -12,6 +13,7 @@ export class ProductsEntity {
     public readonly categoryId?: string | null,
     public readonly description?: string | null,
     public readonly deletedAt?: Date | null,
+    public readonly images: ProductImageEntity[] = [],
   ) {}
 
   get isDeleted(): boolean {

@@ -13,10 +13,12 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { ProductStatus } from '@/common/enums/product.enum';
+import { ProductImageItemDto } from './create-product.dto';
 
 export class UpdateProductVariantDto {
   @ApiPropertyOptional({
-    description: 'ID của biến thể nếu cập nhật biến thể đã tồn tại (để trống nếu muốn thêm mới biến thể)',
+    description:
+      'ID của biến thể nếu cập nhật biến thể đã tồn tại (để trống nếu muốn thêm mới biến thể)',
     example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @IsOptional()
@@ -95,6 +97,16 @@ export class UpdateProductVariantDto {
   @MaxLength(30, { message: 'Trạng thái không được vượt quá 30 ký tự' })
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   status?: string;
+
+  @ApiPropertyOptional({
+    description: 'Danh sách hình ảnh riêng của phân loại / biến thể này',
+    type: [ProductImageItemDto],
+  })
+  @IsOptional()
+  @IsArray({ message: 'Danh sách ảnh biến thể phải là một mảng' })
+  @ValidateNested({ each: true })
+  @Type(() => ProductImageItemDto)
+  images?: ProductImageItemDto[];
 }
 
 export class UpdateProductDto {
@@ -158,6 +170,16 @@ export class UpdateProductDto {
   @IsOptional()
   @IsEnum(ProductStatus, { message: 'Trạng thái sản phẩm không hợp lệ' })
   status?: ProductStatus;
+
+  @ApiPropertyOptional({
+    description: 'Danh sách hình ảnh chung của sản phẩm (ảnh bìa, ảnh mô tả, gallery)',
+    type: [ProductImageItemDto],
+  })
+  @IsOptional()
+  @IsArray({ message: 'Danh sách ảnh sản phẩm phải là một mảng' })
+  @ValidateNested({ each: true })
+  @Type(() => ProductImageItemDto)
+  images?: ProductImageItemDto[];
 
   @ApiPropertyOptional({
     description: 'Danh sách các biến thể cập nhật hoặc thêm mới',
