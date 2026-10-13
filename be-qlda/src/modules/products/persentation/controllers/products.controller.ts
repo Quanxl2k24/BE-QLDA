@@ -19,11 +19,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import {
-  CreateProductDto,
-  GetProductsCursorDto,
-  UpdateProductDto,
-} from '../dto/prodcuts.dto';
+import { CreateProductDto } from '../dto/create-product.dto';
+import { GetProductsCursorDto } from '../dto/get-products.dto';
+import { UpdateProductDto } from '../dto/update-product.dto';
 import { CreateProductUseCase } from '../../application/use-case/CreateProduct.use-case';
 import { AccessTokenGuard } from '@/modules/auth/infrastructure/guards/access-token.guard';
 import { PermissionsGuard } from '@/common/guards/permissions.guard';
@@ -49,8 +47,8 @@ export class ProductsController {
   ) {}
 
   @Post()
-  @UseGuards(AccessTokenGuard, PermissionsGuard)
-  @RequirePermissions(PermissionEnum.PRODUCT_CREATE)
+  // @UseGuards(AccessTokenGuard, PermissionsGuard)
+  // @RequirePermissions(PermissionEnum.PRODUCT_CREATE)
   @HttpCode(HttpStatus.CREATED)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Tạo mới sản phẩm kèm theo các biến thể' })

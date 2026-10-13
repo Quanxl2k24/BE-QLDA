@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
 import { ProductsRepository } from '../../domain/repositories/products.repository';
-import { GetProductsCursorDto } from '../../persentation/dto/prodcuts.dto';
+import { GetProductsCursorDto } from '../../persentation/dto/get-products.dto';
 
 @Injectable()
 export class GetProductsUseCase {

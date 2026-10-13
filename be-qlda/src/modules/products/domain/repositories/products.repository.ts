@@ -1,3 +1,4 @@
+import { ProductImageEntity } from '../entities/product-image.entity';
 import { ProductVariantEntity } from '../entities/product-variants.entity';
 import { ProductsEntity } from '../entities/products.entity';
 
@@ -13,6 +14,13 @@ export interface UpdateProductData {
   description?: string | null;
   brand?: string;
   status?: string;
+  images?: Array<{
+    imageUrl: string;
+    publicId?: string;
+    isThumbnail?: boolean;
+    sortOrder?: number;
+    altText?: string;
+  }>;
   variants?: Array<{
     id?: string;
     sku?: string;
@@ -22,6 +30,13 @@ export interface UpdateProductData {
     weight?: number | null;
     stock?: number;
     status?: string;
+    images?: Array<{
+      imageUrl: string;
+      publicId?: string;
+      isThumbnail?: boolean;
+      sortOrder?: number;
+      altText?: string;
+    }>;
   }>;
 }
 
@@ -33,6 +48,12 @@ export abstract class ProductsRepository {
     description?: string;
     brand: string;
     status?: string;
+    images?: Array<{
+      imageUrl: string;
+      publicId?: string;
+      isThumbnail?: boolean;
+      sortOrder?: number;
+    }>;
     variants?: Array<{
       sku: string;
       name: string;
@@ -41,6 +62,12 @@ export abstract class ProductsRepository {
       weight?: number;
       stock?: number;
       status?: string;
+      images?: Array<{
+        imageUrl: string;
+        publicId?: string;
+        isThumbnail?: boolean;
+        sortOrder?: number;
+      }>;
     }>;
   }): Promise<ProductWithVariants | null>;
 

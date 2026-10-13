@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { ProductsRepository } from '../../domain/repositories/products.repository';
-import { CreateProductDto } from '../../persentation/dto/prodcuts.dto';
+import { CreateProductDto } from '../../persentation/dto/create-product.dto';
 
 @Injectable()
 export class CreateProductUseCase {

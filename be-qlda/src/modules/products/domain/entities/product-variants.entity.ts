@@ -1,3 +1,5 @@
+import { ProductImageEntity } from './product-image.entity';
+
 export class ProductVariantEntity {
   constructor(
     public readonly id: string,
@@ -11,6 +13,7 @@ export class ProductVariantEntity {
     public readonly updatedAt: Date,
     public readonly originalPrice?: number | null,
     public readonly weight?: number | null,
+    public readonly images: ProductImageEntity[] = [],
   ) {}
 
   get isOutOfStock(): boolean {
