@@ -47,15 +47,18 @@ export class ProductsController {
   ) {}
 
   @Post()
-  // @UseGuards(AccessTokenGuard, PermissionsGuard)
-  // @RequirePermissions(PermissionEnum.PRODUCT_CREATE)
+  @UseGuards(AccessTokenGuard, PermissionsGuard)
+  @RequirePermissions(PermissionEnum.PRODUCT_CREATE)
   @HttpCode(HttpStatus.CREATED)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Tạo mới sản phẩm kèm theo các biến thể' })
   @ApiResponse({ status: 201, description: 'Tạo sản phẩm thành công' })
   @ApiResponse({ status: 400, description: 'Dữ liệu đầu vào không hợp lệ' })
   @ApiResponse({ status: 401, description: 'Chưa xác thực (Unauthorized)' })
-  @ApiResponse({ status: 403, description: 'Không có quyền thực hiện (Forbidden)' })
+  @ApiResponse({
+    status: 403,
+    description: 'Không có quyền thực hiện (Forbidden)',
+  })
   @ApiResponse({ status: 409, description: 'Slug hoặc SKU đã tồn tại' })
   async createProduct(@Body() body: CreateProductDto) {
     const data = await this.createProductUseCase.execute(body);
@@ -79,8 +82,14 @@ export class ProductsController {
   @ApiResponse({ status: 200, description: 'Cập nhật sản phẩm thành công' })
   @ApiResponse({ status: 400, description: 'Dữ liệu đầu vào không hợp lệ' })
   @ApiResponse({ status: 401, description: 'Chưa xác thực (Unauthorized)' })
-  @ApiResponse({ status: 403, description: 'Không có quyền thực hiện (Forbidden)' })
-  @ApiResponse({ status: 404, description: 'Không tìm thấy sản phẩm hoặc danh mục' })
+  @ApiResponse({
+    status: 403,
+    description: 'Không có quyền thực hiện (Forbidden)',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Không tìm thấy sản phẩm hoặc danh mục',
+  })
   @ApiResponse({ status: 409, description: 'Slug hoặc SKU đã tồn tại' })
   async updateProduct(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
@@ -107,7 +116,10 @@ export class ProductsController {
   @ApiResponse({ status: 200, description: 'Xóa sản phẩm thành công' })
   @ApiResponse({ status: 400, description: 'ID sản phẩm không hợp lệ' })
   @ApiResponse({ status: 401, description: 'Chưa xác thực (Unauthorized)' })
-  @ApiResponse({ status: 403, description: 'Không có quyền thực hiện (Forbidden)' })
+  @ApiResponse({
+    status: 403,
+    description: 'Không có quyền thực hiện (Forbidden)',
+  })
   @ApiResponse({ status: 404, description: 'Không tìm thấy sản phẩm' })
   async deleteProduct(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
@@ -122,16 +134,22 @@ export class ProductsController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Lấy danh sách sản phẩm phân trang cursor (hỗ trợ lọc theo categorySlug)',
+    summary:
+      'Lấy danh sách sản phẩm phân trang cursor (hỗ trợ lọc theo categorySlug)',
   })
-  @ApiResponse({ status: 200, description: 'Lấy danh sách sản phẩm thành công' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy danh sách sản phẩm thành công',
+  })
   async getProducts(@Query() query: GetProductsCursorDto) {
     return await this.getProductUseCase.execute(query);
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Lấy thông tin chi tiết sản phẩm theo ID hoặc Slug' })
+  @ApiOperation({
+    summary: 'Lấy thông tin chi tiết sản phẩm theo ID hoặc Slug',
+  })
   @ApiParam({
     name: 'id',
     description: 'ID (UUID v4) hoặc Slug của sản phẩm',
