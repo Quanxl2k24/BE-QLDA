@@ -10,6 +10,7 @@ import { RabcModule } from './modules/rbac/rbac.moudule';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { ProductsModule } from './modules/products/products.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { CartModule } from './modules/cart/cart.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { UploadModule } from './modules/upload/upload.module';
     CategoriesModule,
     ProductsModule,
     UploadModule,
+    CartModule,
   ],
   controllers: [],
   providers: [],
