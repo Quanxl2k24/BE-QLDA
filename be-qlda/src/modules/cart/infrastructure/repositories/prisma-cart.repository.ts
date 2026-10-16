@@ -2,7 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma/prisma.services';
 import { Prisma } from '@prisma/client';
 import {
+  CalculatedCartItem,
   CartRepository,
+  CartTotalsResult,
   GetCartItemsParams,
   PaginatedCartResult,
 } from '../../domain/repositories/cart.repository';
@@ -520,5 +522,130 @@ export class PrismaCartRepository implements CartRepository {
       totalItems: allSummaryItems.length,
     };
   }
-}
+  async totalCart(data: {
+    userId: string;
+    itemIds?: string[];
+  }): Promise<CartTotalsResult> {
+    const cart = await this.prisma.cart.findUnique({
+      where: { userId: data.userId },
+      include: {
+        items: {
+          where: data?.itemIds?.length
+            ? { id: { in: data.itemIds } }
+            : undefined,
+          include: {
+            variant: {
+              include: {
+                product: {
+                  select: {
+                    name: true,
+                    status: true,
+                    images: {
+                      where: { isThumbnail: true },
+                      take: 1,
+                      select: { imageUrl: true },
+                    },
+                  },
+                },
+                images: {
+                  orderBy: { sortOrder: 'asc' },
+                  take: 1,
+                  select: { imageUrl: true },
+                },
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
 
+    if (!cart) {
+      return {
+        cartId: null,
+        totalQuantity: 0,
+        totalPrice: 0,
+        totalItems: 0,
+        items: [],
+        hasUnavailableItems: false,
+      };
+    }
+
+    let runningTotal = new Prisma.Decimal(0);
+    let validQuantitySum = 0;
+    let hasUnavailable = false;
+
+    const items: CalculatedCartItem[] = cart.items.map((item) => {
+      const variant = item.variant;
+      const isProductActive =
+        variant.status === 'ACTIVE' && variant.product?.status === 'ACTIVE';
+
+      let isAvailable = true;
+      let unavailableReason:
+        | 'OUT_OF_STOCK'
+        | 'INSUFFICIENT_STOCK'
+        | 'INACTIVE'
+        | undefined;
+
+      if (!isProductActive) {
+        isAvailable = false;
+        unavailableReason = 'INACTIVE';
+      } else if (variant.stock <= 0) {
+        isAvailable = false;
+        unavailableReason = 'OUT_OF_STOCK';
+      } else if (item.quantity > variant.stock) {
+        isAvailable = false;
+        unavailableReason = 'INSUFFICIENT_STOCK';
+      }
+
+      // Giá hiện tại lấy trực tiếp từ database (loại bỏ hoàn toàn việc lấy giá từ frontend)
+      const unitPriceDecimal = new Prisma.Decimal(variant.price);
+      const quantityDecimal = new Prisma.Decimal(item.quantity);
+
+      // Phép tính thành tiền chính xác, không dùng float của JS: price * quantity
+      const subtotalDecimal = unitPriceDecimal.mul(quantityDecimal);
+
+      // Tổng giá trị bằng tổng thành tiền của các dòng hàng được tính vào giỏ
+      if (isAvailable) {
+        runningTotal = runningTotal.add(subtotalDecimal);
+        validQuantitySum += item.quantity;
+      } else {
+        hasUnavailable = true;
+      }
+
+      const imageUrl =
+        variant.images?.[0]?.imageUrl ??
+        variant.product?.images?.[0]?.imageUrl ??
+        null;
+
+      return {
+        cartItemId: item.id,
+        variantId: item.variantId,
+        productName: variant.product?.name ?? '',
+        variantName: variant.name,
+        sku: variant.sku,
+        imageUrl,
+        quantity: item.quantity,
+        stock: variant.stock,
+        unitPrice: unitPriceDecimal.toNumber(),
+        originalPrice: variant.originalPrice
+          ? new Prisma.Decimal(variant.originalPrice).toNumber()
+          : null,
+        subtotal: subtotalDecimal.toDecimalPlaces(2).toNumber(),
+        isAvailable,
+        unavailableReason,
+      };
+    });
+
+    const validItems = items.filter((i) => i.isAvailable);
+
+    return {
+      cartId: cart.id,
+      totalQuantity: validQuantitySum,
+      totalPrice: runningTotal.toDecimalPlaces(2).toNumber(),
+      totalItems: validItems.length,
+      items,
+      hasUnavailableItems: hasUnavailable,
+    };
+  }
+}

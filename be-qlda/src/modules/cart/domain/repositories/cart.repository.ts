@@ -16,6 +16,30 @@ export interface PaginatedCartResult {
   totalPrice: number;
   totalItems: number;
 }
+export interface CalculatedCartItem {
+  cartItemId: string;
+  variantId: string;
+  productName: string;
+  variantName: string;
+  sku: string;
+  imageUrl: string | null;
+  quantity: number;
+  stock: number;
+  unitPrice: number;
+  originalPrice: number | null;
+  subtotal: number;
+  isAvailable: boolean;
+  unavailableReason?: 'OUT_OF_STOCK' | 'INSUFFICIENT_STOCK' | 'INACTIVE';
+}
+
+export interface CartTotalsResult {
+  cartId: string | null;
+  totalQuantity: number;
+  totalPrice: number;
+  totalItems: number;
+  items: CalculatedCartItem[];
+  hasUnavailableItems: boolean;
+}
 
 export abstract class CartRepository {
   abstract findVariantById(variantId: string): Promise<CartItemVariant | null>;
@@ -39,4 +63,9 @@ export abstract class CartRepository {
   abstract getCartItemsWithCursor(
     params: GetCartItemsParams,
   ): Promise<PaginatedCartResult>;
+
+  abstract totalCart(data: {
+    userId: string;
+    itemIds?: string[];
+  }): Promise<CartTotalsResult>;
 }

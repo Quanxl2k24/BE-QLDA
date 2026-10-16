@@ -6,6 +6,7 @@ import { PrismaCartRepository } from './infrastructure/repositories/prisma-cart.
 import { GetCartItem } from './application/use-case/GetCartItem.use-case';
 import { UpdateCartItemUseCase } from './application/use-case/UpdateCartItem.use-case';
 import { ClearCartUseCase } from './application/use-case/ClearCart.use-case';
+import { TotalCartUseCase } from './application/use-case/TotalsCart.use-case';
 
 @Module({
   controllers: [CartController],
@@ -14,6 +15,7 @@ import { ClearCartUseCase } from './application/use-case/ClearCart.use-case';
     GetCartItem,
     UpdateCartItemUseCase,
     ClearCartUseCase,
+    TotalCartUseCase,
     {
       provide: CartRepository,
       useClass: PrismaCartRepository,

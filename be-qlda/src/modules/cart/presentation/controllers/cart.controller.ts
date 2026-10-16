@@ -22,12 +22,14 @@ import { AddToCartUseCase } from '../../application/use-case/AddToCart.use-case'
 import { AddToCartDto } from '../dto/addToCart.dto';
 import { GetCartCursorDto } from '../dto/get-cart.dto';
 import { UpdateCartItemDto } from '../dto/update-cart-item.dto';
+import { CartTotalsQueryDto } from '../dto/totalCart.dto';
 import { AccessTokenGuard } from '@/modules/auth/infrastructure/guards/access-token.guard';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import * as types from '@/common/types/types';
 import { GetCartItem } from '../../application/use-case/GetCartItem.use-case';
 import { UpdateCartItemUseCase } from '../../application/use-case/UpdateCartItem.use-case';
 import { ClearCartUseCase } from '../../application/use-case/ClearCart.use-case';
+import { TotalCartUseCase } from '../../application/use-case/TotalsCart.use-case';
 
 @ApiTags('Cart')
 @Controller({
@@ -40,6 +42,7 @@ export class CartController {
     private readonly getCartItem: GetCartItem,
     private readonly updateCartItemUseCase: UpdateCartItemUseCase,
     private readonly clearCartUseCase: ClearCartUseCase,
+    private readonly totalCartUseCase: TotalCartUseCase,
   ) {}
 
   @Post()
@@ -211,7 +214,7 @@ export class CartController {
     };
   }
 
-  @Delete(['clear', 'items', ''])
+  @Delete(['clear'])
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
@@ -236,5 +239,32 @@ export class CartController {
       data: result,
     };
   }
-}
 
+  @Get('totals')
+  @UseGuards(AccessTokenGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Tính tổng giá trị các sản phẩm trong giỏ hàng',
+    description:
+      'Tính thành tiền từng sản phẩm dựa trên giá hiện tại trong DB nhân số lượng, tổng tiền các mặt hàng hợp lệ được chọn, chống sai số số thực và phát hiện sản phẩm đổi trạng thái/hết hàng.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Tính toán giá trị giỏ hàng thành công',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Chưa đăng nhập (Unauthorized)',
+  })
+  async totalsCart(
+    @CurrentUser() user: types.PayloadToken,
+    @Query() query: CartTotalsQueryDto,
+  ) {
+    const data = await this.totalCartUseCase.execute(user.sub, query);
+    return {
+      message: 'Tính toán giá trị giỏ hàng thành công',
+      data,
+    };
+  }
+}
