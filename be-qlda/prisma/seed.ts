@@ -98,6 +98,21 @@ async function main() {
     );
   }
 
+  // 🛡️ BẢO VỆ CHỈ CHẠY 1 LẦN: Kiểm tra nếu tài khoản Admin đã tồn tại thì bỏ qua toàn bộ seed
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail },
+  });
+
+  if (existingAdmin) {
+    console.log(
+      `⚡ Tài khoản Admin [${adminEmail}] đã tồn tại trong cơ sở dữ liệu.`,
+    );
+    console.log(
+      '⏩ Bỏ qua quá trình seed để bảo toàn mật khẩu và dữ liệu hiện có!\n',
+    );
+    return;
+  }
+
   // 1. Seed Permissions
   console.log('📌 Đang khởi tạo các Permission...');
   const permissionsMap = new Map<string, string>();
