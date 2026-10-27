@@ -18,6 +18,8 @@ export const envValidationSchema = Joi.object({
   JWT_REFRESH_EXPIRES_IN: Joi.string().default('7d'),
 
   BCRYPT_SALT_ROUNDS: Joi.number().default(12),
+  MAX_AGE_ACCESS: Joi.number().default(15),
+  MAX_AGE_REFRESH: Joi.number().default(30),
 
   REDIS_URL: Joi.string().allow('', null).optional(),
   REDIS_HOST: Joi.string().default('localhost'),
