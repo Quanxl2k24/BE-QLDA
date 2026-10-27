@@ -45,6 +45,20 @@ export class AuthController {
     private readonly resendOtpUseCase: ResendOtpUseCase,
   ) {}
 
+  private getAccessCookieMaxAge(): number {
+    const raw = this.configService.get<string | number>('MAX_AGE_ACCESS');
+    const parsed = parseInt(String(raw ?? ''), 10);
+    const minutes = !isNaN(parsed) && parsed > 0 ? parsed : 15;
+    return minutes * 60 * 1000;
+  }
+
+  private getRefreshCookieMaxAge(): number {
+    const raw = this.configService.get<string | number>('MAX_AGE_REFRESH');
+    const parsed = parseInt(String(raw ?? ''), 10);
+    const days = !isNaN(parsed) && parsed > 0 ? parsed : 30;
+    return days * 24 * 60 * 60 * 1000;
+  }
+
   @Post('/login')
   @HttpCode(HttpStatus.OK)
   async login(
@@ -58,7 +72,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: Number(this.configService.get('MAX_AGE_ACCESS')) * 60 * 1000,
+      maxAge: this.getAccessCookieMaxAge(),
       path: '/',
     });
 
@@ -66,8 +80,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge:
-        Number(this.configService.get('MAX_AGE_REFRESH')) * 24 * 60 * 60 * 1000,
+      maxAge: this.getRefreshCookieMaxAge(),
       path: '/',
     });
 
@@ -93,15 +106,19 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: Number(this.configService.get('MAX_AGE_ACCESS')) * 60 * 1000,
+      maxAge: this.getAccessCookieMaxAge(),
       path: '/',
     });
+
+    const refreshRemainingMs = Math.floor(
+      Math.max(0, result.data.expiresAt.getTime() - Date.now()),
+    );
 
     res.cookie('refreshToken', result.data.refreshTokenNew, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: Math.max(0, result.data.expiresAt.getTime() - Date.now()),
+      maxAge: refreshRemainingMs > 0 ? refreshRemainingMs : this.getRefreshCookieMaxAge(),
       path: '/',
     });
 
